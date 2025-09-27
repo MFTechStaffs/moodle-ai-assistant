@@ -1,0 +1,130 @@
+{
+  "name": "moodle-ai-assistant-extension",
+  "displayName": "Moodle AI Assistant",
+  "description": "Personal AI Assistant for Moodle LMS Administration",
+  "version": "0.1.0",
+  "publisher": "manfree-technologies",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other",
+    "Education",
+    "Machine Learning"
+  ],
+  "keywords": [
+    "moodle",
+    "ai",
+    "assistant",
+    "lms",
+    "education"
+  ],
+  "activationEvents": [
+    "onCommand:moodleAI.activate",
+    "onView:moodleAI.sidebar"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "moodleAI.activate",
+        "title": "Activate Assistant",
+        "category": "Moodle AI"
+      },
+      {
+        "command": "moodleAI.reviewCourse",
+        "title": "Review Course",
+        "category": "Moodle AI"
+      },
+      {
+        "command": "moodleAI.createCourse",
+        "title": "Create Course",
+        "category": "Moodle AI"
+      },
+      {
+        "command": "moodleAI.manageUsers",
+        "title": "Manage Users",
+        "category": "Moodle AI"
+      },
+      {
+        "command": "moodleAI.questionBank",
+        "title": "Question Bank",
+        "category": "Moodle AI"
+      },
+      {
+        "command": "moodleAI.testConnection",
+        "title": "Test Connection",
+        "category": "Moodle AI"
+      }
+    ],
+    "views": {
+      "explorer": [
+        {
+          "id": "moodleAI.sidebar",
+          "name": "Moodle AI Assistant",
+          "when": "moodleAI.activated"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "moodleAI",
+          "title": "Moodle AI",
+          "icon": "$(robot)"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Moodle AI Assistant",
+      "properties": {
+        "moodleAI.serverUrl": {
+          "type": "string",
+          "default": "http://localhost:3000",
+          "description": "Local server URL"
+        },
+        "moodleAI.autoStart": {
+          "type": "boolean",
+          "default": true,
+          "description": "Auto-start local server"
+        },
+        "moodleAI.aiProvider": {
+          "type": "string",
+          "enum": ["claude", "chatgpt", "gemini", "auto"],
+          "default": "auto",
+          "description": "Preferred AI provider"
+        },
+        "moodleAI.confirmActions": {
+          "type": "boolean",
+          "default": true,
+          "description": "Confirm before executing actions"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js",
+    "dev": "npm run watch",
+    "build": "npm run compile",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.80.0",
+    "@types/node": "20.x",
+    "@typescript-eslint/eslint-plugin": "^6.4.1",
+    "@typescript-eslint/parser": "^6.4.1",
+    "eslint": "^8.47.0",
+    "typescript": "^5.1.6",
+    "@vscode/test-electron": "^2.3.4",
+    "vsce": "^2.15.0"
+  },
+  "dependencies": {
+    "axios": "^1.5.0",
+    "ws": "^8.14.0"
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "name": "moodle-ai-assistant",
+  "version": "0.1.0",
+  "description": "Personal AI Assistant for Moodle LMS Administration",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server:dev\" \"npm run extension:dev\"",
+    "build": "npm run server:build && npm run extension:build",
+    "server": "cd local-server && npm start",
+    "server:dev": "cd local-server && npm run dev",
+    "server:build": "cd local-server && npm run build",
+    "extension:dev": "cd extension && npm run dev",
+    "extension:build": "cd extension && npm run build",
+    "extension:install": "cd extension && vsce package && code --install-extension *.vsix",
+    "test": "npm run test:server && npm run test:extension",
+    "test:server": "cd local-server && npm test",
+    "test:extension": "cd extension && npm test",
+    "lint": "eslint . --ext .ts,.js",
+    "lint:fix": "eslint . --ext .ts,.js --fix",
+    "setup": "npm run setup:server && npm run setup:extension",
+    "setup:server": "cd local-server && npm install",
+    "setup:extension": "cd extension && npm install",
+    "clean": "rimraf dist build out *.vsix",
+    "docs": "typedoc --out docs/api src/",
+    "db:migrate": "cd local-server && npm run db:migrate",
+    "db:seed": "cd local-server && npm run db:seed"
+  },
+  "keywords": [
+    "moodle",
+    "ai",
+    "assistant",
+    "lms",
+    "automation",
+    "vscode",
+    "extension"
+  ],
+  "author": "Manfree Technologies",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/manfree/moodle-ai-assistant.git"
+  },
+  "bugs": {
+    "url": "https://github.com/manfree/moodle-ai-assistant/issues"
+  },
+  "homepage": "https://github.com/manfree/moodle-ai-assistant#readme",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "concurrently": "^8.0.0",
+    "eslint": "^8.0.0",
+    "rimraf": "^5.0.0",
+    "typedoc": "^0.25.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "vscode": "^1.80.0"
+  },
+  "workspaces": [
+    "extension",
+    "local-server"
+  ]
+}
