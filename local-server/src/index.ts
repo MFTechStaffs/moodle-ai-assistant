@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import { Database } from './database/Database';
 import { MoodleConnector } from './moodle-api/MoodleConnector';
 import { ContextManager } from './memory/ContextManager';
+import { AIService } from './ai-bridge/AIService';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -12,6 +13,7 @@ const PORT = process.env.PORT || 3000;
 // Initialize database and services
 const memoryDb = new Database();
 const contextManager = new ContextManager(memoryDb);
+const aiService = new AIService(memoryDb);
 
 // Middleware
 app.use(helmet());
@@ -38,6 +40,23 @@ app.get('/api/stats', async (req, res) => {
     }
 });
 
+// AI query endpoint
+app.post('/api/ai/query', async (req, res) => {
+    try {
+        const { query, sessionId } = req.body;
+        
+        if (!query || !sessionId) {
+            return res.status(400).json({ error: 'Query and sessionId are required' });
+        }
+
+        const response = await aiService.processQuery(query, sessionId);
+        res.json(response);
+    } catch (error) {
+        console.error('AI query failed:', error);
+        res.status(500).json({ error: 'Failed to process query' });
+    }
+});
+
 // Moodle data endpoints
 app.get('/api/moodle/courses', async (req, res) => {
     try {
@@ -57,16 +76,6 @@ app.get('/api/moodle/users', async (req, res) => {
     }
 });
 
-app.get('/api/moodle/questions', async (req, res) => {
-    try {
-        const categoryId = req.query.category ? parseInt(req.query.category as string) : undefined;
-        const questions = await memoryDb.getQuestions(categoryId);
-        res.json(questions);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to get questions' });
-    }
-});
-
 // Context building endpoint
 app.post('/api/context/build', async (req, res) => {
     try {
@@ -81,26 +90,6 @@ app.post('/api/context/build', async (req, res) => {
     } catch (error) {
         console.error('Context building failed:', error);
         res.status(500).json({ error: 'Failed to build context' });
-    }
-});
-
-// Save interaction endpoint
-app.post('/api/context/save', async (req, res) => {
-    try {
-        const { sessionId, userInput, aiResponse, contextUsed, actionTaken } = req.body;
-        
-        await contextManager.saveInteractionContext(
-            sessionId, 
-            userInput, 
-            aiResponse, 
-            contextUsed || [], 
-            actionTaken
-        );
-        
-        res.json({ success: true });
-    } catch (error) {
-        console.error('Failed to save interaction:', error);
-        res.status(500).json({ error: 'Failed to save interaction' });
     }
 });
 
@@ -123,57 +112,11 @@ app.post('/api/sync/full', async (req, res) => {
     }
 });
 
-app.post('/api/sync/courses', async (req, res) => {
-    try {
-        const { moodleConfig } = req.body;
-        const connector = new MoodleConnector(moodleConfig, memoryDb);
-        await connector.syncCourses();
-        res.json({ success: true, message: 'Courses synced' });
-    } catch (error) {
-        res.status(500).json({ error: 'Course sync failed', details: error.message });
-    }
-});
-
-// Admin patterns endpoints
-app.get('/api/patterns/:type', async (req, res) => {
-    try {
-        const pattern = await memoryDb.getAdminPattern(req.params.type);
-        res.json(pattern);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to get pattern' });
-    }
-});
-
-app.post('/api/patterns/:type', async (req, res) => {
-    try {
-        const { data } = req.body;
-        await memoryDb.saveAdminPattern(req.params.type, data);
-        res.json({ success: true });
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to save pattern' });
-    }
-});
-
-// Conversation history endpoint
-app.get('/api/conversations/:sessionId', async (req, res) => {
-    try {
-        const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
-        const history = await memoryDb.getConversationHistory(req.params.sessionId, limit);
-        res.json(history);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to get conversation history' });
-    }
-});
-
-// Error handling middleware
-app.use((error: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-    console.error('Unhandled error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-});
-
-// 404 handler
-app.use((req, res) => {
-    res.status(404).json({ error: 'Endpoint not found' });
+// Initialize AI service
+aiService.initialize().then(() => {
+    console.log('AI Service initialized');
+}).catch(error => {
+    console.error('AI Service initialization failed:', error);
 });
 
 // Start server
@@ -187,11 +130,6 @@ app.listen(PORT, () => {
 process.on('SIGINT', async () => {
     console.log('Shutting down gracefully...');
     await memoryDb.close();
-    process.exit(0);
-});
-
-process.on('SIGTERM', async () => {
-    console.log('Shutting down gracefully...');
-    await memoryDb.close();
+    await aiService.close();
     process.exit(0);
 });
