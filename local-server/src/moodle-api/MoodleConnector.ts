@@ -135,11 +135,13 @@ export class MoodleConnector {
         if (!this.connection) throw new Error('Not connected to Moodle database');
 
         const [rows] = await this.connection.execute(`
-            SELECT q.id, q.category, q.name, q.questiontext, q.qtype,
+            SELECT q.id, qbe.questioncategoryid as category, q.name, q.questiontext, q.qtype,
                    q.defaultmark, q.penalty, q.timecreated, q.timemodified
             FROM mdl_question q
-            WHERE q.parent = 0
-            ORDER BY q.category, q.name
+            JOIN mdl_question_versions qv ON q.id = qv.questionid
+            JOIN mdl_question_bank_entries qbe ON qv.questionbankentryid = qbe.id
+            WHERE qv.status = 'ready' AND q.parent = 0
+            ORDER BY qbe.questioncategoryid, q.name
         `);
 
         const questions = rows as any[];

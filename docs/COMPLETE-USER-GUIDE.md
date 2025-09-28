@@ -12,18 +12,19 @@
 cd ~/workspace/moodle-ai-assistant
 rm -f local-server/data/moodle-memory.db
 
-# Fix Chrome dependencies (Ubuntu package names)
-sudo apt-get update
-sudo apt-get install -y libnss3 libatk-bridge2.0-0t64 libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxrandr2 libgbm1 libxss1 libasound2t64
+# SKIP BROWSER AUTOMATION (Recommended - you don't need it for VS Code)
+# Start server without browser automation:
+cd local-server
+PUPPETEER_SKIP_DOWNLOAD=true npm run dev
 
-# Alternative: Install chromium browser (easier)
-sudo apt-get install -y chromium-browser
+# Optional: Install Chrome dependencies only if you want browser automation
+# sudo apt-get install -y libnss3 libatk-bridge2.0-0t64 libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxrandr2 libgbm1 libxss1 libasound2t64
 ```
 
-### **Step 2: Start the Server**
+### **Step 2: Start the Server (Without Browser)**
 ```bash
 cd ~/workspace/moodle-ai-assistant/local-server
-npm run dev
+PUPPETEER_SKIP_DOWNLOAD=true npm run dev
 ```
 
 **✅ Expected Success Output:**
@@ -31,7 +32,7 @@ npm run dev
 🚀 Moodle AI Assistant Server running on port 3000
 📊 Health check: http://localhost:3000/api/health
 Database initialized successfully
-AI Service initialized
+AI Service initialized (browser automation skipped)
 ```
 
 **❌ If You See Errors:**
@@ -67,15 +68,27 @@ AI Service initialized
 }
 ```
 
-### **Step 3: Test Moodle Connection**
-1. **Open terminal**
-2. **Run sync command:**
+### **Step 3: Test Moodle Connection (Docker Setup)**
+1. **Make sure your Moodle containers are running:**
+```bash
+cd ~/workspace/manfree-moodle-platform
+docker ps | grep moodle
+# Should show: manfree_moodle and manfree_mariadb
+```
+
+2. **Get MariaDB container IP:**
+```bash
+docker inspect manfree_mariadb | grep IPAddress
+# Note the IP (usually 172.18.0.3)
+```
+
+3. **Run sync command with container IP:**
 ```bash
 curl -X POST http://localhost:3000/api/sync/full \
   -H "Content-Type: application/json" \
   -d '{
     "moodleConfig": {
-      "host": "localhost",
+      "host": "172.18.0.3",
       "port": 3306,
       "database": "moodle",
       "user": "moodle",
@@ -111,12 +124,15 @@ npm run package
 
 ### **Step 2: Install in VS Code**
 
-#### **Method 1: Command Line**
+#### **Method 1: Build and Install**
 ```bash
-code --install-extension moodle-ai-assistant-0.1.0.vsix
+cd ~/workspace/moodle-ai-assistant/extension
+npm run build
+npm run package
+code --install-extension *.vsix
 ```
 
-#### **Method 2: VS Code GUI**
+#### **Method 2: VS Code GUI (Recommended)**
 1. **Open VS Code**
 2. **Press `Ctrl+Shift+X`** (Extensions view)
 3. **Click the `...` menu** (top-right of Extensions panel)
@@ -124,6 +140,7 @@ code --install-extension moodle-ai-assistant-0.1.0.vsix
 5. **Navigate to:** `~/workspace/moodle-ai-assistant/extension/`
 6. **Select:** `moodle-ai-assistant-0.1.0.vsix`
 7. **Click "Install"**
+8. **Reload VS Code** when prompted
 
 ### **Step 3: Verify Installation**
 1. **Look for "Moodle AI Assistant" in Extensions list**
@@ -155,10 +172,16 @@ code --install-extension moodle-ai-assistant-0.1.0.vsix
 
 **Expected:** Chat panel opens with welcome message
 
-### **Step 4: Test AI Conversation**
+### **Step 4: Test Basic Functionality (No AI Chat Yet)**
 1. **In chat panel, type:** `Hello, can you help me with my Moodle?`
 2. **Press Enter or click Send**
-3. **Expected:** AI responds (may take 10-30 seconds)
+3. **Expected:** Error message (AI chat requires browser automation)
+
+**Note:** Without browser automation, you can:
+- ✅ **View your Moodle data** (courses, users, questions)
+- ✅ **Use all VS Code commands**
+- ✅ **See statistics and sync data**
+- ❌ **AI chat responses** (requires browser setup)
 
 ---
 
@@ -199,41 +222,44 @@ Press `Ctrl+Shift+P` and type "Moodle AI:" to see:
 
 ---
 
-## 🎯 **Part 6: Real Usage Examples**
+## 🎯 **Part 6: Current Usage (Without Browser Automation)**
 
-### **Example 1: Course Review**
-1. **Click "📚 Review Course" in sidebar**
-2. **Enter course name:** "Electronics Fundamentals"
-3. **AI analyzes and responds with:**
-   - Current enrollment
-   - Module structure
-   - Quiz performance
-   - Improvement suggestions
+### **What Works Now:**
 
-### **Example 2: Question Management**
-1. **Click "❓ Question Bank" in sidebar**
-2. **AI reviews your questions and reports:**
-   - Duplicate questions found
-   - Difficulty distribution
-   - Unused questions
-   - Quality improvements
+#### **Data Viewing & Statistics**
+1. **Click "📊 Show Stats" in sidebar**
+2. **See your synced data:**
+   - Total courses: 10
+   - Total users: 36
+   - Total questions: 4,995
+   - Conversations: 0
 
-### **Example 3: User Management**
-1. **Click "👥 Manage Users" in sidebar**
-2. **Type:** "Enroll 10 new students to embedded systems course"
-3. **AI guides you through:**
-   - Student list requirements
-   - Enrollment method
-   - Course capacity check
-   - Confirmation process
+#### **Data Synchronization**
+1. **Click "🔄 Sync Data" in sidebar**
+2. **Updates from your Moodle database**
+3. **Refreshes all course and user information**
 
-### **Example 4: Free-form Chat**
-1. **Open chat panel**
-2. **Type natural language:**
-   - "What courses have low enrollment?"
-   - "Create a quiz about microcontrollers"
-   - "Show me students who are struggling"
-   - "Update all assignment deadlines"
+#### **Manual Data Review**
+1. **Use API endpoints in browser:**
+   - `http://localhost:3000/api/moodle/courses` - View all courses
+   - `http://localhost:3000/api/moodle/users` - View all users
+   - `http://localhost:3000/api/moodle/questions` - View questions
+
+### **What Requires Browser Setup:**
+- ❌ **AI Chat responses** (needs Chrome/browser automation)
+- ❌ **Natural language queries**
+- ❌ **AI-generated suggestions**
+- ❌ **Automated course analysis**
+
+### **To Enable Full AI Features:**
+```bash
+# Install Chrome dependencies
+sudo apt-get install -y chromium-browser
+
+# Start server with browser automation
+cd local-server
+npm run dev  # (without PUPPETEER_SKIP_DOWNLOAD)
+```
 
 ---
 
@@ -292,14 +318,17 @@ curl -I https://learning.manfreetechnologies.com
 
 ### **Browser Automation Issues**
 ```bash
-# Install missing dependencies (correct Ubuntu package names)
+# Option 1: Skip browser automation (recommended for basic usage)
+cd local-server
+PUPPETEER_SKIP_DOWNLOAD=true npm run dev
+
+# Option 2: Install Chrome dependencies for full AI chat
 sudo apt-get install -y libnss3 libatk-bridge2.0-0t64 libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxrandr2 libgbm1 libxss1 libasound2t64
 
-# Or install chromium browser (easier)
+# Option 3: Install chromium browser (easier)
 sudo apt-get install -y chromium-browser
 
-# Or skip browser automation entirely
-export PUPPETEER_SKIP_DOWNLOAD=true
+# Then start normally:
 npm run dev
 ```
 
@@ -381,17 +410,37 @@ curl -X POST http://localhost:3000/api/context/build \
 - [ ] Your original Moodle LMS works normally (completely unaffected)
 
 ### **🎯 You're Ready When You Can:**
-- [ ] Ask "Review my electronics course" and get analysis
+
+#### **Basic Features (No Browser Required):**
+- [ ] See "✅ Connected" in VS Code sidebar
+- [ ] Click "📊 Show Stats" and see your data (10 courses, 36 users, 4995 questions)
+- [ ] Use "🔄 Sync Data" and see updated statistics
+- [ ] View courses at `http://localhost:3000/api/moodle/courses`
+- [ ] Access all your Moodle data through the API
+
+#### **Advanced Features (Requires Browser Setup):**
+- [ ] Ask "Review my electronics course" and get AI analysis
 - [ ] Request "Create 5 quiz questions" and get formatted questions
 - [ ] Say "Show struggling students" and get actionable data
-- [ ] Use "Sync my Moodle data" and see updated statistics
 - [ ] Have natural conversations about your Moodle administration
 
 ---
 
-## 🚀 **Part 10: Advanced Usage**
+## 🚀 **Part 10: Current Capabilities & Future Features**
 
-### **Custom Prompts**
+### **What You Can Do Now (Without Browser):**
+```
+# View your data
+curl http://localhost:3000/api/moodle/courses
+curl http://localhost:3000/api/moodle/users
+curl http://localhost:3000/api/stats
+
+# Sync fresh data from Moodle
+# Use VS Code commands for data management
+# Monitor your Moodle system status
+```
+
+### **Future AI Features (With Browser Setup):**
 ```
 "Create a course template for embedded systems with 6 modules"
 "Generate assessment rubric for programming assignments"  
@@ -400,7 +449,7 @@ curl -X POST http://localhost:3000/api/context/build \
 "Create automated enrollment workflow for new students"
 ```
 
-### **Batch Operations**
+### **Batch Operations (Future):**
 ```
 "Update all quiz deadlines to next Friday"
 "Enroll all computer science students to programming course"
@@ -408,13 +457,10 @@ curl -X POST http://localhost:3000/api/context/build \
 "Generate progress reports for all instructors"
 ```
 
-### **Integration Workflows**
-```
-"Import student list from CSV and enroll to courses"
-"Export quiz results to Excel for analysis"
-"Create course announcements for upcoming deadlines"
-"Setup automated grading for multiple choice questions"
-```
+### **To Enable Full AI Features:**
+1. **Install Chrome:** `sudo apt-get install chromium-browser`
+2. **Start server normally:** `npm run dev` (without PUPPETEER_SKIP_DOWNLOAD)
+3. **Test AI chat in VS Code**
 
 ---
 
