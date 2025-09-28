@@ -8,13 +8,16 @@
 
 ### **Step 1: Fix Common Issues First**
 ```bash
-# Fix database issue
+# Fix database issue (ONE TIME ONLY - this is just AI cache, not your Moodle data)
 cd ~/workspace/moodle-ai-assistant
 rm -f local-server/data/moodle-memory.db
 
-# Fix Chrome dependencies
+# Fix Chrome dependencies (Ubuntu package names)
 sudo apt-get update
-sudo apt-get install -y libnss3 libatk-bridge2.0-0 libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxrandr2 libgbm1 libxss1 libasound2
+sudo apt-get install -y libnss3 libatk-bridge2.0-0t64 libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxrandr2 libgbm1 libxss1 libasound2t64
+
+# Alternative: Install chromium browser (easier)
+sudo apt-get install -y chromium-browser
 ```
 
 ### **Step 2: Start the Server**
@@ -32,8 +35,9 @@ AI Service initialized
 ```
 
 **❌ If You See Errors:**
-- **Database error:** Run `rm -f data/moodle-memory.db` and restart
+- **Database error:** Run `rm -f data/moodle-memory.db` and restart (this only deletes AI cache, not your Moodle data)
 - **Chrome error:** Install dependencies above or use `PUPPETEER_SKIP_DOWNLOAD=true npm run dev`
+- **Package not found:** Use correct Ubuntu package names (libatk-bridge2.0-0t64, libasound2t64)
 
 ---
 
@@ -249,9 +253,11 @@ npm run dev
 
 ### **Database Errors**
 ```bash
-# Reset database
+# Reset AI memory database (SAFE - this is just cache, not your Moodle data)
 rm -f local-server/data/moodle-memory.db
 cd local-server && npm run db:migrate
+
+# Your actual Moodle database is NEVER touched - completely safe
 ```
 
 ### **Extension Not Loading**
@@ -286,13 +292,53 @@ curl -I https://learning.manfreetechnologies.com
 
 ### **Browser Automation Issues**
 ```bash
-# Install missing dependencies
+# Install missing dependencies (correct Ubuntu package names)
+sudo apt-get install -y libnss3 libatk-bridge2.0-0t64 libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxrandr2 libgbm1 libxss1 libasound2t64
+
+# Or install chromium browser (easier)
 sudo apt-get install -y chromium-browser
 
-# Or skip browser automation
+# Or skip browser automation entirely
 export PUPPETEER_SKIP_DOWNLOAD=true
 npm run dev
 ```
+
+---
+
+## ⚠️ **IMPORTANT: Database Safety**
+
+### **Two Different Databases - Don't Confuse Them!**
+
+#### **🛡️ Your Moodle LMS Database (NEVER TOUCHED)**
+```
+Location: Your Moodle server (localhost:3306)
+Database: moodle (MySQL/MariaDB)
+Contains: All your courses, students, quizzes, grades
+Status: 100% SAFE - AI Assistant only READS from this
+```
+
+#### **🔄 AI Memory Database (Safe to Delete)**
+```
+Location: local-server/data/moodle-memory.db
+Database: SQLite file (local cache)
+Contains: Copy of Moodle data + AI conversations
+Status: Just a cache - rebuilds from your Moodle database
+```
+
+### **When We Delete Memory Database:**
+- ✅ **Your Moodle courses:** Completely safe
+- ✅ **Your students:** Completely safe  
+- ✅ **Your quizzes:** Completely safe
+- ❌ **AI conversations:** Lost (but rebuilds)
+- ❌ **AI learned patterns:** Lost (but relearns)
+
+### **Data Flow:**
+```
+Your Moodle DB → Sync → AI Memory DB → AI Assistant
+   (Original)           (Local Copy)
+```
+
+**Think of it like clearing browser cache - your website is still there!**
 
 ---
 
@@ -325,13 +371,14 @@ curl -X POST http://localhost:3000/api/context/build \
 ### **✅ Everything Working When:**
 - [ ] Server starts without errors
 - [ ] Health endpoint returns JSON
-- [ ] Moodle sync completes successfully
+- [ ] Moodle sync completes successfully (copies FROM your Moodle TO AI cache)
 - [ ] VS Code extension installs and loads
 - [ ] Sidebar shows "✅ Connected"
 - [ ] Chat panel opens and responds
 - [ ] Commands work from Command Palette
 - [ ] AI provides relevant responses
 - [ ] Database stats show synced data
+- [ ] Your original Moodle LMS works normally (completely unaffected)
 
 ### **🎯 You're Ready When You Can:**
 - [ ] Ask "Review my electronics course" and get analysis
