@@ -27,8 +27,7 @@ VS Code Extension ↔ Local Server ↔ Moodle Database
 ### Prerequisites
 - VS Code
 - Node.js 18+
-- Access to your Moodle LMS
-- Internet connection for AI services
+- Your existing Moodle LMS running
 
 ### Installation
 ```bash
@@ -36,18 +35,37 @@ VS Code Extension ↔ Local Server ↔ Moodle Database
 git clone <your-repo-url>
 cd moodle-ai-assistant
 
-# Install dependencies
-npm install
+# Automated setup
+./scripts/setup.sh
+```
 
-# Setup configuration
-cp config/config.example.json config/config.json
-# Edit config.json with your Moodle details
+### Configuration
+Edit `config/config.json` with your Moodle details:
+```json
+{
+  "moodle": {
+    "url": "https://learning.manfreetechnologies.com",
+    "database": {
+      "host": "localhost",
+      "port": 3306,
+      "database": "moodle",
+      "user": "moodle",
+      "password": "moodle123"
+    }
+  }
+}
+```
 
-# Start local server
-npm run server
+### Usage
+```bash
+# Start the assistant
+npm run dev
 
-# Install VS Code extension
-npm run install-extension
+# In VS Code:
+# 1. Install extension from extension/*.vsix
+# 2. Open Command Palette (Ctrl+Shift+P)
+# 3. Run: "Moodle AI: Test Connection"
+# 4. Start chatting with your AI assistant!
 ```
 
 ## 📚 Documentation
@@ -55,7 +73,7 @@ npm run install-extension
 - **[Setup Guide](docs/SETUP.md)** - Detailed installation and configuration
 - **[Usage Examples](docs/USAGE.md)** - Common workflows and commands
 - **[API Documentation](docs/API.md)** - Technical reference
-- **[Architecture](docs/ARCHITECTURE.md)** - System design and components
+- **[Troubleshooting](docs/TROUBLESHOOTING.md)** - Common issues and solutions
 
 ## 🎮 Example Usage
 
@@ -85,22 +103,19 @@ AI: "Creating improvement plan...
 # Development mode
 npm run dev
 
+# Run tests
+./scripts/test.sh
+
 # Build extension
 npm run build
-
-# Run tests
-npm run test
-
-# Lint code
-npm run lint
 ```
 
 ## 📋 Project Status
 
 - [x] Phase 1: Foundation & Project Setup
-- [ ] Phase 2: Memory System & Moodle Connector
-- [ ] Phase 3: AI Integration & Router
-- [ ] Phase 4: VS Code Extension & UI
+- [x] Phase 2: Memory System & Moodle Connector
+- [x] Phase 3: AI Integration & Router
+- [x] Phase 4: Testing, Documentation & Polish
 
 ## 🤝 Contributing
 

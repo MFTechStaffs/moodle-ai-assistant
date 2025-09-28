@@ -6,55 +6,27 @@
       "host": "localhost",
       "port": 3306,
       "database": "moodle",
-      "user": "moodle_readonly",
-      "password": "your-secure-password"
-    },
-    "webservice": {
-      "enabled": false,
-      "url": "https://learning.manfreetechnologies.com/webservice/rest/server.php",
-      "token": "your-webservice-token",
-      "format": "json"
+      "user": "moodle",
+      "password": "moodle123"
     }
   },
   "ai": {
     "providers": ["claude", "chatgpt", "gemini"],
     "defaultProvider": "claude",
-    "rotationEnabled": true,
     "browser": {
       "headless": false,
-      "timeout": 30000,
-      "userDataDir": "./browser-sessions"
-    },
-    "cache": {
-      "enabled": true,
-      "ttl": 3600,
-      "maxSize": "50MB"
+      "timeout": 30000
     }
   },
   "memory": {
     "database": "local-server/data/moodle-memory.db",
-    "retentionDays": 365,
-    "autoBackup": true,
-    "cacheSize": "100MB",
-    "indexing": true,
-    "compression": true
+    "retentionDays": 365
   },
   "server": {
     "port": 3000,
     "host": "localhost",
-    "cors": {
-      "enabled": true,
-      "origins": ["http://localhost:3000", "vscode-webview://*"]
-    },
     "logging": {
-      "level": "info",
-      "file": "logs/app.log"
+      "level": "info"
     }
-  },
-  "sync": {
-    "autoSync": true,
-    "syncInterval": "1h",
-    "syncOnStartup": true,
-    "batchSize": 100
   }
 }
