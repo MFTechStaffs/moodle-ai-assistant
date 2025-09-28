@@ -54,14 +54,14 @@ class MoodleAIItem extends vscode.TreeItem {
         public readonly label: string,
         public readonly tooltip: string,
         public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-        public readonly command?: string
+        commandName?: string
     ) {
         super(label, collapsibleState);
         this.tooltip = tooltip;
         
-        if (command) {
+        if (commandName) {
             this.command = {
-                command: command,
+                command: commandName,
                 title: label
             };
         }

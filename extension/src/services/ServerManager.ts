@@ -27,7 +27,7 @@ export class ServerManager {
                 sessionId
             });
             return response.data;
-        } catch (error) {
+        } catch (error: any) {
             throw new Error(`Failed to send query: ${error.message}`);
         }
     }
@@ -36,7 +36,7 @@ export class ServerManager {
         try {
             const response = await axios.get(`${this.serverUrl}/api/stats`);
             return response.data;
-        } catch (error) {
+        } catch (error: any) {
             throw new Error(`Failed to get stats: ${error.message}`);
         }
     }
@@ -52,7 +52,7 @@ export class ServerManager {
 
         try {
             await axios.post(`${this.serverUrl}/api/sync/full`, { moodleConfig });
-        } catch (error) {
+        } catch (error: any) {
             throw new Error(`Sync failed: ${error.message}`);
         }
     }

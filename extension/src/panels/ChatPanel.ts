@@ -62,7 +62,7 @@ export class ChatPanel {
                         } catch (error) {
                             this._panel.webview.postMessage({
                                 command: 'receiveError',
-                                error: error.message
+                                error: (error as any).message
                             });
                         }
                         break;

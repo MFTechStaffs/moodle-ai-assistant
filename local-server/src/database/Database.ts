@@ -149,7 +149,7 @@ export class Database {
     }
 
     async getAdminPattern(type: string): Promise<any> {
-        const pattern = await this.get(
+        const pattern = await this.get<any>(
             'SELECT * FROM admin_patterns WHERE pattern_type = ?',
             [type]
         );
@@ -184,7 +184,7 @@ export class Database {
             'SELECT * FROM memory_context WHERE context_type = ? ORDER BY relevance_score DESC, last_accessed DESC LIMIT ?',
             [type, limit]
         );
-        return contexts.map(ctx => ({
+        return contexts.map((ctx: any) => ({
             ...ctx,
             context_data: JSON.parse(ctx.context_data)
         }));
@@ -200,10 +200,10 @@ export class Database {
         ]);
 
         return {
-            courses: courses?.count || 0,
-            users: users?.count || 0,
-            questions: questions?.count || 0,
-            conversations: conversations?.count || 0
+            courses: (courses as any)?.count || 0,
+            users: (users as any)?.count || 0,
+            questions: (questions as any)?.count || 0,
+            conversations: (conversations as any)?.count || 0
         };
     }
 

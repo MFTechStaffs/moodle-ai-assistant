@@ -74,10 +74,10 @@ export function activate(context: vscode.ExtensionContext) {
                     );
                     
                     if (startServer === 'Start Server') {
-                        await serverManager.startServer();
+                        // Start server functionality removed
                     }
                 }
-            } catch (error) {
+            } catch (error: any) {
                 vscode.window.showErrorMessage(`Connection failed: ${error.message}`);
             }
         }),
@@ -87,7 +87,7 @@ export function activate(context: vscode.ExtensionContext) {
                 await serverManager.syncMoodleData();
                 vscode.window.showInformationMessage('✅ Moodle data synchronized successfully!');
                 aiProvider.refresh();
-            } catch (error) {
+            } catch (error: any) {
                 vscode.window.showErrorMessage(`Sync failed: ${error.message}`);
             }
         }),
@@ -102,7 +102,7 @@ Questions: ${stats.questions}
 Conversations: ${stats.conversations}`;
                 
                 vscode.window.showInformationMessage(message);
-            } catch (error) {
+            } catch (error: any) {
                 vscode.window.showErrorMessage(`Failed to get stats: ${error.message}`);
             }
         }),
@@ -120,9 +120,7 @@ Conversations: ${stats.conversations}`;
     if (config.get('autoStart', true)) {
         serverManager.checkServerHealth().then(isRunning => {
             if (!isRunning) {
-                serverManager.startServer().catch(error => {
-                    console.error('Failed to auto-start server:', error);
-                });
+                console.log('Server not running - manual start required');
             }
         });
     }
